@@ -1,0 +1,20 @@
+[
+  {
+    "scenario": "Valid credentials",
+    "username": "tomsmith",
+    "password": "SuperSecretPassword!",
+    "expectedStatus": "success"
+  },
+  {
+    "scenario": "Invalid username",
+    "username": "wronguser",
+    "password": "SuperSecretPassword!",
+    "expectedStatus": "failure"
+  },
+  {
+    "scenario": "Invalid password",
+    "username": "tomsmith",
+    "password": "wrongpassword",
+    "expectedStatus": "failure"
+  }
+]

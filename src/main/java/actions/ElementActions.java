@@ -20,20 +20,29 @@ public class ElementActions {
         int attempt = 0;
         while (attempt <= MAX_RETRIES) {
             try {
-                WebElement element = WaitStrategy.waitForPresence(locator);
-                
-                if (attempt == MAX_RETRIES) {
-                    logger.warn("Attempt 3: Using JavascriptExecutor to click element: " + elementName);
-                    JavascriptExecutor js = (JavascriptExecutor) DriverManager.getDriver();
-                    js.executeScript("arguments[0].click();", element);
-                } else {
-                    WaitStrategy.waitForClickability(locator);
-                    element.click();
-                }
-                
+                WebElement element = WaitStrategy.waitForClickability(locator);
+                element.click();
                 logger.info("Clicked on element: " + elementName);
                 return;
+                
             } catch (Exception e) {
+                // Check if the exception is due to interactability issues
+                if (e instanceof org.openqa.selenium.ElementNotInteractableException || 
+                    e instanceof org.openqa.selenium.ElementClickInterceptedException) {
+                    
+                    logger.warn("Selenium interaction blocked natively. Forcing JavascriptExecutor click on: " + elementName);
+                    try {
+                        WebElement element = WaitStrategy.waitForPresence(locator);
+                        JavascriptExecutor js = (JavascriptExecutor) DriverManager.getDriver();
+                        js.executeScript("arguments[0].click();", element);
+                        logger.info("Clicked on element using JS: " + elementName);
+                        return;
+                    } catch (Exception jsException) {
+                        logger.warn("Javascript fallback also failed for: " + elementName + ". Proceeding to standard retry loop.");
+                    }
+                }
+                
+                // Else, it's a different exception (like StaleElement), or JS failed, so we loop and retry
                 logger.warn("Failed to click element: " + elementName + " on attempt " + (attempt + 1) + ". Reason: " + e.getMessage());
                 attempt++;
                 if (attempt > MAX_RETRIES) {
@@ -48,21 +57,29 @@ public class ElementActions {
         int attempt = 0;
         while (attempt <= MAX_RETRIES) {
             try {
-                WebElement element = WaitStrategy.waitForPresence(locator);
-                
-                if (attempt == MAX_RETRIES) {
-                    logger.warn("Attempt 3: Using JavascriptExecutor to type into element: " + elementName);
-                    JavascriptExecutor js = (JavascriptExecutor) DriverManager.getDriver();
-                    js.executeScript("arguments[0].value='" + text + "';", element);
-                } else {
-                    WaitStrategy.waitForVisibility(locator);
-                    element.clear();
-                    element.sendKeys(text);
-                }
-                
+                WebElement element = WaitStrategy.waitForVisibility(locator);
+                element.clear();
+                element.sendKeys(text);
                 logger.info("Typed text '" + text + "' into element: " + elementName);
                 return;
+                
             } catch (Exception e) {
+                // Check if the exception is due to interactability issues
+                if (e instanceof org.openqa.selenium.ElementNotInteractableException) {
+                    
+                    logger.warn("Selenium interaction blocked natively. Forcing JavascriptExecutor type on: " + elementName);
+                    try {
+                        WebElement element = WaitStrategy.waitForPresence(locator);
+                        JavascriptExecutor js = (JavascriptExecutor) DriverManager.getDriver();
+                        js.executeScript("arguments[0].value='" + text + "';", element);
+                        logger.info("Typed text '" + text + "' into element using JS: " + elementName);
+                        return;
+                    } catch (Exception jsException) {
+                        logger.warn("Javascript fallback also failed for: " + elementName + ". Proceeding to standard retry loop.");
+                    }
+                }
+                
+                // Else, loop and retry
                 logger.warn("Failed to type into element: " + elementName + " on attempt " + (attempt + 1) + ". Reason: " + e.getMessage());
                 attempt++;
                 if (attempt > MAX_RETRIES) {

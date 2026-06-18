@@ -8,6 +8,13 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.AbstractDriverOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
 
 public class DriverManager {
 
@@ -37,21 +44,36 @@ public class DriverManager {
             ConfigReader config = ConfigReader.getInstance();
             String browser = config.getBrowser();
             boolean incognito = config.isIncognito();
+            String executionTarget = config.getExecutionTarget();
+            String gridUrl = config.getGridUrl();
             
-            WebDriver driver;
+            // Convert relative download path to an absolute path for the browsers
+            String downloadPath = new File(config.getDownloadDir()).getAbsolutePath();
             
+            WebDriver driver = null;
+            AbstractDriverOptions<?> options;
+
+            // 1. Build the Browser Options & Preferences
             switch (browser) {
                 case "firefox":
                     FirefoxOptions firefoxOptions = new FirefoxOptions();
                     if (incognito) firefoxOptions.addArguments("-private");
-                    // Selenium Manager will automatically download the correct driver binary
-                    driver = new FirefoxDriver(firefoxOptions);
+                    // Firefox Download Preferences
+                    firefoxOptions.addPreference("browser.download.folderList", 2);
+                    firefoxOptions.addPreference("browser.download.dir", downloadPath);
+                    firefoxOptions.addPreference("browser.helperApps.neverAsk.saveToDisk", 
+                        "application/pdf,application/octet-stream,application/zip,text/csv,application/vnd.ms-excel");
+                    options = firefoxOptions;
                     break;
                     
                 case "edge":
                     EdgeOptions edgeOptions = new EdgeOptions();
                     if (incognito) edgeOptions.addArguments("-inPrivate");
-                    driver = new EdgeDriver(edgeOptions);
+                    // Edge Download Preferences
+                    HashMap<String, Object> edgePrefs = new HashMap<>();
+                    edgePrefs.put("download.default_directory", downloadPath);
+                    edgeOptions.setExperimentalOption("prefs", edgePrefs);
+                    options = edgeOptions;
                     break;
                     
                 case "chrome":
@@ -59,8 +81,31 @@ public class DriverManager {
                     ChromeOptions chromeOptions = new ChromeOptions();
                     if (incognito) chromeOptions.addArguments("--incognito");
                     chromeOptions.addArguments("--remote-allow-origins=*");
-                    driver = new ChromeDriver(chromeOptions);
+                    // Chrome Download Preferences
+                    HashMap<String, Object> chromePrefs = new HashMap<>();
+                    chromePrefs.put("download.default_directory", downloadPath);
+                    chromePrefs.put("profile.default_content_settings.popups", 0);
+                    chromeOptions.setExperimentalOption("prefs", chromePrefs);
+                    options = chromeOptions;
                     break;
+            }
+
+            // 2. Instantiate the Driver (Local vs Grid)
+            try {
+                if ("grid".equalsIgnoreCase(executionTarget)) {
+                    URL url = new URL(gridUrl);
+                    driver = new RemoteWebDriver(url, options);
+                } else {
+                    if (options instanceof FirefoxOptions) {
+                        driver = new FirefoxDriver((FirefoxOptions) options);
+                    } else if (options instanceof EdgeOptions) {
+                        driver = new EdgeDriver((EdgeOptions) options);
+                    } else {
+                        driver = new ChromeDriver((ChromeOptions) options);
+                    }
+                }
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Invalid Grid URL provided: " + gridUrl, e);
             }
             
             driver.manage().window().maximize();

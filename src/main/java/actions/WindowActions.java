@@ -58,6 +58,27 @@ public class WindowActions {
     }
 
     /**
+     * Iterates through all open windows and switches to the one whose URL contains the specific text.
+     * 
+     * @param partialUrl The partial or exact URL of the window you want to switch to.
+     */
+    public static void switchToWindowByUrl(String partialUrl) {
+        try {
+            Set<String> windowHandles = getDriver().getWindowHandles();
+            for (String handle : windowHandles) {
+                getDriver().switchTo().window(handle);
+                if (getDriver().getCurrentUrl().contains(partialUrl)) {
+                    logger.info("Successfully switched to window with URL containing: " + partialUrl);
+                    return;
+                }
+            }
+            logger.warn("Could not find any window with URL containing: " + partialUrl);
+        } catch (Exception e) {
+            logger.error("Failed to switch to window by URL. Reason: " + e.getMessage());
+        }
+    }
+
+    /**
      * Switches back to the original/main window (the first window opened in the session).
      */
     public static void switchToMainWindow() {

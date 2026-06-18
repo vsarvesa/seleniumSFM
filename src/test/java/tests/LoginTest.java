@@ -7,6 +7,8 @@ import listeners.TestListener;
 import org.testng.annotations.Test;
 import pages.LoginPage;
 
+import java.util.Map;
+
 public class LoginTest extends BaseTest {
 
     @Test(description = "Verify successful login with dynamic user creation on failure")
@@ -51,5 +53,27 @@ public class LoginTest extends BaseTest {
         
         // This will purposely fail to demonstrate retry and screenshot mechanisms
         softAssert.assertTrue(message.contains("You logged into a secure area!"), "Intentional failure for demonstration.");
+    }
+
+    @org.testng.annotations.DataProvider(name = "loginDataProvider")
+    public Object[][] getLoginData() {
+        return utils.JsonReader.getJsonDataAsDataProvider("src/test/resources/testdata/loginData.json");
+    }
+
+    @Test(description = "Verify Data-Driven Login scenarios from JSON", dataProvider = "loginDataProvider")
+    public void testDataDrivenLogin(Map<String, String> data) {
+        LoginPage loginPage = new LoginPage();
+        
+        loginPage.enterUsername(data.get("username"))
+                 .enterPassword(data.get("password"))
+                 .clickLogin();
+                 
+        if ("success".equalsIgnoreCase(data.get("expectedStatus"))) {
+            softAssert.assertTrue(loginPage.getSuccessMessage().contains("secure area"), 
+                "Expected success but login failed for scenario: " + data.get("scenario"));
+        } else {
+            softAssert.assertTrue(loginPage.isLoginErrorDisplayed(), 
+                "Expected failure but error message was missing for scenario: " + data.get("scenario"));
+        }
     }
 }

@@ -1,0 +1,16 @@
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.iws
+
+# Maven compilation output
+target/
+
+# Allure Results
+allure-results/
+
+# Mac OS
+.DS_Store
+
+# Log files
+*.log

@@ -19,6 +19,9 @@ public class TestListener implements ITestListener {
     @Override
     public void onTestSuccess(ITestResult result) {
         logger.info("Test Passed: " + result.getMethod().getMethodName());
+        
+        // Take a screenshot of the successful state and attach it to Allure
+        ScreenshotUtil.takeScreenshotAndAttachToAllure();
     }
 
     @Override

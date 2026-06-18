@@ -25,6 +25,7 @@
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <aspectj.version>1.9.22</aspectj.version>
         
+        
         <!-- Default Thread Count for Parallel Execution -->
         <thread.count>2</thread.count>
     </properties>
@@ -81,6 +82,13 @@
             <groupId>ru.yandex.qatools.ashot</groupId>
             <artifactId>ashot</artifactId>
             <version>1.5.4</version>
+        </dependency>
+
+        <!-- Jackson for JSON parsing (Data-Driven Testing) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.1</version>
         </dependency>
     </dependencies>
 
