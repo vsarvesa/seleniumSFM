@@ -73,4 +73,9 @@ public class ConfigReader {
         String sysDownloadDir = System.getProperty("download.dir");
         return sysDownloadDir != null ? sysDownloadDir : properties.getProperty("download.dir", "target/downloads");
     }
+
+    public String getPageLoadStrategy() {
+        String sysStrategy = System.getProperty("page.load.strategy");
+        return (sysStrategy != null ? sysStrategy : properties.getProperty("page.load.strategy", "normal")).toUpperCase();
+    }
 }

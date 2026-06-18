@@ -29,6 +29,18 @@ public class Utility {
         return faker.name().fullName();
     }
 
+    public static String generateFakeFirstName(){
+        return faker.name().firstName();
+    }
+
+    public static String generateFakerLastName(){
+        return faker.name().lastName();
+    }
+
+    public static String generateFakerphonenumber(){
+        return faker.phoneNumber().cellPhone();
+    }
+
     /**
      * Generates a unique value based on the current timestamp.
      * @return A unique string based on time.

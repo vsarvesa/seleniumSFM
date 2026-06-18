@@ -11,7 +11,7 @@ public class LoginPage extends BasePage {
     private static final String PASSWORD_ID = "password";
     private static final String LOGIN_BTN_CSS = "button[type='submit']";
     private static final String SUCCESS_MSG_ID = "flash";
-    
+    private static final String REGISTER_HERE="Register here";
     // Example of a Dynamic String Template (ready for MessageFormat)
     private static final String DYNAMIC_ELEMENT_XPATH = "//div[contains(text(), ''{0}'')]";
 
@@ -20,13 +20,14 @@ public class LoginPage extends BasePage {
     private final By passwordField;
     private final By loginButton;
     private final By successMessage;
-
+    private final By registerHere;
     // Constructor to initialize static locators
     public LoginPage() {
         this.usernameField = By.id(USERNAME_ID);
         this.passwordField = By.id(PASSWORD_ID);
         this.loginButton = By.cssSelector(LOGIN_BTN_CSS);
         this.successMessage = By.id(SUCCESS_MSG_ID);
+        this.registerHere = By.linkText(REGISTER_HERE);
     }
     
     /**
@@ -69,5 +70,10 @@ public class LoginPage extends BasePage {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // click on link register here
+    public void clickRegisterHere(){
+        ElementActions.click(registerHere,"Register Here");
     }
 }

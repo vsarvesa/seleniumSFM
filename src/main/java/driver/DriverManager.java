@@ -10,6 +10,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.PageLoadStrategy;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -89,6 +90,15 @@ public class DriverManager {
                     options = chromeOptions;
                     break;
             }
+
+            // Apply Page Load Strategy
+            PageLoadStrategy loadStrategy;
+            try {
+                loadStrategy = PageLoadStrategy.valueOf(config.getPageLoadStrategy());
+            } catch (IllegalArgumentException e) {
+                loadStrategy = PageLoadStrategy.NORMAL; // Fallback
+            }
+            options.setPageLoadStrategy(loadStrategy);
 
             // 2. Instantiate the Driver (Local vs Grid)
             try {

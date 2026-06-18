@@ -140,6 +140,16 @@
                     </dependency>
                 </dependencies>
             </plugin>
+
+            <!-- Allure Maven Plugin for generating and serving reports -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
+                <configuration>
+                    <reportVersion>${allure.version}</reportVersion>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

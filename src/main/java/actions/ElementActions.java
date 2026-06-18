@@ -23,6 +23,8 @@ public class ElementActions {
                 WebElement element = WaitStrategy.waitForClickability(locator);
                 element.click();
                 logger.info("Clicked on element: " + elementName);
+                // Automatically wait for any triggered page loads or AJAX calls to stabilize
+                WaitStrategy.waitForPageLoad();
                 return;
                 
             } catch (Exception e) {
@@ -36,6 +38,8 @@ public class ElementActions {
                         JavascriptExecutor js = (JavascriptExecutor) DriverManager.getDriver();
                         js.executeScript("arguments[0].click();", element);
                         logger.info("Clicked on element using JS: " + elementName);
+                        // Automatically wait for any triggered page loads or AJAX calls to stabilize
+                        WaitStrategy.waitForPageLoad();
                         return;
                     } catch (Exception jsException) {
                         logger.warn("Javascript fallback also failed for: " + elementName + ". Proceeding to standard retry loop.");
@@ -107,6 +111,45 @@ public class ElementActions {
                     throw new CustomElementNotFoundException("Failed to select from dropdown '" + dropdownName + "' after " + (MAX_RETRIES + 1) + " attempts.", e);
                 }
             }
+        }
+    }
+
+    public static boolean isElementSelected(By locator, String elementName) {
+        try {
+            WebElement element = WaitStrategy.waitForPresence(locator);
+            boolean isSelected = element.isSelected();
+            logger.info("Element '" + elementName + "' is selected: " + isSelected);
+            return isSelected;
+        } catch (Exception e) {
+            logger.error("Failed to check if element is selected: " + elementName, e);
+            throw new CustomElementNotFoundException("Could not determine selection state of: " + elementName, e);
+        }
+    }
+
+    public static void checkCheckbox(By locator, String elementName) {
+        if (!isElementSelected(locator, elementName)) {
+            logger.info("Checkbox '" + elementName + "' is unchecked. Proceeding to check it.");
+            click(locator, elementName);
+        } else {
+            logger.info("Checkbox '" + elementName + "' is already checked. No action needed.");
+        }
+    }
+
+    public static void uncheckCheckbox(By locator, String elementName) {
+        if (isElementSelected(locator, elementName)) {
+            logger.info("Checkbox '" + elementName + "' is checked. Proceeding to uncheck it.");
+            click(locator, elementName);
+        } else {
+            logger.info("Checkbox '" + elementName + "' is already unchecked. No action needed.");
+        }
+    }
+
+    public static void selectRadioButton(By locator, String elementName) {
+        if (!isElementSelected(locator, elementName)) {
+            logger.info("Radio button '" + elementName + "' is not selected. Proceeding to select it.");
+            click(locator, elementName);
+        } else {
+            logger.info("Radio button '" + elementName + "' is already selected. No action needed.");
         }
     }
 }
