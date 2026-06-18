@@ -1,7 +1,7 @@
 # Framework Configuration
 
 # Application URL
-url=https://rahulshettyacademy.com/client/#/auth/login
+url=
 
 # Browser Configuration (e.g., chrome, firefox, edge)
 browser=chrome
