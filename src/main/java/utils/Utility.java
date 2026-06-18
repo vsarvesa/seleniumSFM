@@ -38,7 +38,8 @@ public class Utility {
     }
 
     public static String generateFakerphonenumber(){
-        return faker.phoneNumber().cellPhone();
+        // Guarantees a 10-digit string consisting ONLY of numbers, and guarantees it will never start with a 0.
+        return String.valueOf(faker.number().numberBetween(1000000000L, 9999999999L));
     }
 
     /**
